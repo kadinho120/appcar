@@ -133,21 +133,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
 
                 mediaRecorder.onstop = async () => {
-                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    const audioBlob = new Blob(audioChunks);
+                    console.log(`Gravação finalizada. Tamanho: ${audioBlob.size} bytes, Chunks: ${audioChunks.length}`);
+
+                    if (audioBlob.size < 1000) {
+                        console.warn("Áudio muito curto ou vazio.");
+                        audioStatus.classList.add('hidden');
+                        return;
+                    }
+
                     loading.classList.remove('hidden');
                     audioStatus.classList.add('hidden');
 
                     try {
+                        // Ensure user is signed in to Puter for AI access
+                        if (!puter.auth.isSignedIn()) {
+                            await puter.auth.signIn();
+                        }
+
+                        console.log("Iniciando transcrição...");
                         const transcript = await puter.ai.speech2txt(audioBlob);
+                        console.log("Transcrição recebida:", transcript);
+
                         const text = transcript.text || transcript;
-                        if (text) {
+                        if (text && typeof text === 'string' && text.trim().length > 0) {
                             userInput.value = text;
                             // Auto-send after transcription
                             sendMessage();
+                        } else {
+                            console.warn("Transcrição vazia ou inválida.");
                         }
                     } catch (err) {
-                        console.error("Speech2Txt Error:", err);
-                        addMessage('assistant', "Desculpe, não consegui entender o áudio. Pode tentar escrever?");
+                        console.error("Speech2Txt Error Detailed:", err);
+                        const errorStr = typeof err === 'object' ? JSON.stringify(err, null, 2) : err;
+                        addMessage('assistant', `❌ Erro na Transcrição:\n${errorStr}`);
                     } finally {
                         loading.classList.add('hidden');
                     }
