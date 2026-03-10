@@ -149,11 +149,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (text) userContent.push({ type: 'text', text: text });
 
             if (selectedImage) {
-                // Upload file to Puter FS first for chat context
-                const tempName = `temp_${Date.now()}_${selectedImage.name.replace(/\s+/g, '_')}`;
-                const puterFile = await puter.fs.write(tempName, selectedImage);
-                // Use the returned path from Puter
-                userContent.push({ type: 'file', puter_path: puterFile.path });
+                // Use a very simple, sanitized filename
+                const extension = selectedImage.name.split('.').pop() || 'jpg';
+                const tempName = `diag_img_${Date.now()}.${extension}`;
+
+                // Write to the app's root (home directory for this app context)
+                await puter.fs.write(tempName, selectedImage);
+
+                // Documentation suggests '~/path/to/file' for Puter paths
+                const uploadedPath = `~/${tempName}`;
+                userContent.push({ type: 'file', puter_path: uploadedPath });
 
                 // Clear preview
                 selectedImage = null;
