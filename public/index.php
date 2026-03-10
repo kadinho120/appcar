@@ -58,6 +58,11 @@ switch ($uri) {
         $controller->save();
         break;
 
+    case '/delete-diagnostic':
+        $controller = new \App\Controllers\DiagnosticController($db);
+        $controller->delete();
+        break;
+
     case '/garage':
         if (!isset($_SESSION['user_id'])) {
             header('Location: /login');

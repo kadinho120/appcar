@@ -141,6 +141,21 @@ class DiagnosticController
         require '../views/dashboard/chat.php';
     }
 
+    public function delete(): void
+    {
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: /login');
+            exit;
+        }
+
+        $id = $_GET['id'] ?? null;
+        if ($id) {
+            $this->diagnosticModel->delete((int) $id, (int) $_SESSION['user_id']);
+        }
+
+        header('Location: /index');
+    }
+
     public function history(): void
     {
         $this->index(); // Reuse the same landing page logic

@@ -45,6 +45,12 @@ class Diagnostic
         return $result ?: null;
     }
 
+    public function delete(int $id, int $userId): bool
+    {
+        $stmt = $this->db->prepare("DELETE FROM diagnostics WHERE id = :id AND user_id = :user_id");
+        return $stmt->execute(['id' => $id, 'user_id' => $userId]);
+    }
+
     public function getConnection(): PDO
     {
         return $this->db;

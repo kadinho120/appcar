@@ -41,36 +41,48 @@ ob_start();
                     // Extract first problem name from Markdown **Problem Name**
                     preg_match('/\*\*(.*?)\*\*/', $resultText, $matches);
                     $problemTitle = $matches[1] ?? 'Diagnóstico Geral';
-                    
+
                     // Simple cleaning if it starts with numbers or common prefixes
                     $problemTitle = preg_replace('/^\d+\.\s*/', '', $problemTitle);
                     ?>
-                    <a href="/chat?diagnostic_id=<?= $item['id'] ?>"
-                        class="bg-white p-4 rounded-3xl shadow-sm border border-gray-50 hover:border-blue-100 transition-all active:scale-[0.98] block group">
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="text-[10px] font-bold text-gray-400 bg-gray-50 px-2 py-1 rounded-full uppercase">
-                                <?= date('d M, Y', strtotime($item['created_at'])) ?>
-                            </span>
-                            <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full uppercase">
-                                Ver Chat
-                            </span>
-                        </div>
-                        <h4 class="font-bold text-gray-800 line-clamp-1 mb-1 group-hover:text-blue-600 transition-colors">
-                            <?= htmlspecialchars($problemTitle) ?>
-                        </h4>
-                        <p class="text-xs text-gray-500 line-clamp-2 mb-3 italic">"<?= htmlspecialchars($item['symptoms']) ?>"
-                        </p>
- 
-                        <div class="flex items-center space-x-2 text-[10px] text-gray-400 border-t border-gray-50 pt-3">
+                    <div class="relative">
+                        <a href="/chat?diagnostic_id=<?= $item['id'] ?>"
+                            class="bg-white p-4 rounded-3xl shadow-sm border border-gray-50 hover:border-blue-100 transition-all active:scale-[0.98] block">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-[10px] font-bold text-gray-400 bg-gray-50 px-2 py-1 rounded-full uppercase">
+                                    <?= date('d M, Y', strtotime($item['created_at'])) ?>
+                                </span>
+                                <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full uppercase">
+                                    Ver Chat
+                                </span>
+                            </div>
+                            <h4 class="font-bold text-gray-800 line-clamp-1 mb-1">
+                                <?= htmlspecialchars($problemTitle) ?>
+                            </h4>
+                            <p class="text-xs text-gray-500 line-clamp-2 mb-3 italic">
+                                "<?= htmlspecialchars($item['symptoms']) ?>"
+                            </p>
+
+                            <div class="flex items-center space-x-2 text-[10px] text-gray-400 border-t border-gray-50 pt-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+                                </svg>
+                                <span><?= htmlspecialchars($item['vehicle_info']['make'] ?? 'Veículo') ?>
+                                    <?= htmlspecialchars($item['vehicle_info']['model'] ?? 'N/A') ?></span>
+                            </div>
+                        </a>
+                        <a href="/delete-diagnostic?id=<?= $item['id'] ?>"
+                            onclick="return confirm('Tem certeza que deseja excluir este diagnóstico?')"
+                            class="absolute top-2 right-2 p-2 text-gray-300 hover:text-red-500 transition-colors z-10 bg-white/80 backdrop-blur-sm rounded-full">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
-                            <span><?= htmlspecialchars($item['vehicle_info']['make'] ?? 'Veículo') ?>
-                                <?= htmlspecialchars($item['vehicle_info']['model'] ?? 'N/A') ?></span>
-                        </div>
-                    </a>
+                        </a>
+                    </div>
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
@@ -112,9 +124,11 @@ ob_start();
                             </div>
                             <div class="flex-1">
                                 <h4 class="font-bold text-gray-800">
-                                    <?= htmlspecialchars($vehicle['make'] . ' ' . $vehicle['model']) ?></h4>
+                                    <?= htmlspecialchars($vehicle['make'] . ' ' . $vehicle['model']) ?>
+                                </h4>
                                 <p class="text-xs text-gray-500"><?= htmlspecialchars($vehicle['year']) ?> •
-                                    <?= htmlspecialchars($vehicle['license_plate'] ?? '--') ?></p>
+                                    <?= htmlspecialchars($vehicle['license_plate'] ?? '--') ?>
+                                </p>
                             </div>
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-300 group-hover:text-blue-600"
                                 viewBox="0 0 20 20" fill="currentColor">
