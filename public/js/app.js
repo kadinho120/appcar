@@ -42,10 +42,20 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     // If vehicle context is provided, inject it as the first context message
-    if (typeof vehicleContext !== 'undefined' && vehicleContext !== null) {
+    if (typeof vehicleContext !== 'undefined' && vehicleContext !== null && vehicleContext.id) {
         messages.push({
             role: 'user',
             content: `INFORMAÇÃO DO VEÍCULO: Estou diagnosticando um ${vehicleContext.make} ${vehicleContext.model} ano ${vehicleContext.year}. Considere estas especificações técnicas em seus diagnósticos.`
+        });
+    }
+
+    // Load historical messages if available
+    if (typeof historicalMessages !== 'undefined' && historicalMessages.length > 0) {
+        historicalMessages.forEach(msg => {
+            const role = msg.role;
+            const content = msg.content;
+            messages.push({ role, content });
+            addMessage(role, content, role === 'assistant');
         });
     }
 

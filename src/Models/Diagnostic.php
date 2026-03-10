@@ -37,6 +37,14 @@ class Diagnostic
         return $stmt->fetchAll();
     }
 
+    public function findById(int $id): ?array
+    {
+        $stmt = $this->db->prepare("SELECT * FROM diagnostics WHERE id = :id");
+        $stmt->execute(['id' => $id]);
+        $result = $stmt->fetch();
+        return $result ?: null;
+    }
+
     public function getConnection(): PDO
     {
         return $this->db;

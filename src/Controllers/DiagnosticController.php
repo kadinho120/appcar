@@ -54,7 +54,14 @@ class DiagnosticController
         }
 
         $userId = $_SESSION['user_id'];
-        $history = $this->diagnosticModel->getHistoryByUserId($userId);
+        $historyRaw = $this->diagnosticModel->getHistoryByUserId($userId);
+
+        // Decode JSON fields for the view
+        $history = array_map(function ($item) {
+            $item['vehicle_info'] = json_decode($item['vehicle_info'], true);
+            $item['result_json'] = json_decode($item['result_json'], true);
+            return $item;
+        }, $historyRaw);
 
         // Fetch vehicles for the "New Diagnostic" selection
         $vehicleModel = new \App\Models\Vehicle($this->diagnosticModel->getConnection());
@@ -70,21 +77,36 @@ class DiagnosticController
             exit;
         }
 
-        $vehicleId = $_GET['vehicle_id'] ?? null;
-        if (!$vehicleId) {
-            header('Location: /index');
-            exit;
+        $diagnosticId = $_GET['diagnostic_id'] ?? null;
+        $selectedVehicle = null;
+        $historicalMessages = [];
+
+        if ($diagnosticId) {
+            $diagnostic = $this->diagnosticModel->findById((int) $diagnosticId);
+            if ($diagnostic && $diagnostic['user_id'] == $_SESSION['user_id']) {
+                $selectedVehicle = json_decode($diagnostic['vehicle_info'], true);
+                $historicalMessages = [
+                    ['role' => 'user', 'content' => $diagnostic['symptoms']],
+                    ['role' => 'assistant', 'content' => json_decode($diagnostic['result_json'], true)['text'] ?? '']
+                ];
+            }
         }
 
-        $vehicleModel = new \App\Models\Vehicle($this->diagnosticModel->getConnection());
-        $vehicle = $vehicleModel->findByUser((int) $_SESSION['user_id']);
+        if (!$selectedVehicle) {
+            $vehicleId = $_GET['vehicle_id'] ?? null;
+            if (!$vehicleId) {
+                header('Location: /index');
+                exit;
+            }
 
-        // Find the specific vehicle selected
-        $selectedVehicle = null;
-        foreach ($vehicle as $v) {
-            if ($v['id'] == $vehicleId) {
-                $selectedVehicle = $v;
-                break;
+            $vehicleModel = new \App\Models\Vehicle($this->diagnosticModel->getConnection());
+            $vehicle = $vehicleModel->findByUser((int) $_SESSION['user_id']);
+
+            foreach ($vehicle as $v) {
+                if ($v['id'] == $vehicleId) {
+                    $selectedVehicle = $v;
+                    break;
+                }
             }
         }
 

@@ -6,11 +6,12 @@ ob_start();
 <!-- Pass vehicle context to JS -->
 <script>
     const vehicleContext = <?= json_encode([
-        'id' => $selectedVehicle['id'],
-        'make' => $selectedVehicle['make'],
-        'model' => $selectedVehicle['model'],
-        'year' => $selectedVehicle['year']
+        'id' => $selectedVehicle['id'] ?? null,
+        'make' => $selectedVehicle['make'] ?? 'N/A',
+        'model' => $selectedVehicle['model'] ?? 'N/A',
+        'year' => $selectedVehicle['year'] ?? 'N/A'
     ]) ?>;
+    const historicalMessages = <?= json_encode($historicalMessages ?? []) ?>;
 </script>
 
 <div class="flex flex-col h-full bg-gray-50">
@@ -26,23 +27,24 @@ ob_start();
         <div>
             <h3 class="text-xs font-bold text-gray-800 uppercase tracking-wider">Diagnosticando</h3>
             <p class="text-sm text-gray-500 font-medium">
-                <?= htmlspecialchars($selectedVehicle['make'] . ' ' . $selectedVehicle['model'] . ' (' . $selectedVehicle['year'] . ')') ?>
+                <?= htmlspecialchars(($selectedVehicle['make'] ?? 'Veículo') . ' ' . ($selectedVehicle['model'] ?? '') . ' (' . ($selectedVehicle['year'] ?? '') . ')') ?>
             </p>
         </div>
     </div>
 
     <!-- Chat Container -->
     <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4">
-        <!-- Welcome Message -->
-        <div class="flex items-start">
-            <div class="bg-blue-600 text-white p-3 rounded-2xl rounded-tl-none shadow-md max-w-[85%]">
-                <p class="text-sm">Olá! Estou pronto para diagnosticar seu <strong>
-                        <?= htmlspecialchars($selectedVehicle['model']) ?>
-                    </strong>. 🚗</p>
-                <p class="text-sm mt-1">O que está acontecendo com ele? Se puder, me envie uma foto ou descreva os
-                    sintomas/barulhos por áudio ou texto.</p>
+        <?php if (empty($historicalMessages)): ?>
+            <!-- Welcome Message -->
+            <div class="flex items-start">
+                <div class="bg-blue-600 text-white p-3 rounded-2xl rounded-tl-none shadow-md max-w-[85%]">
+                    <p class="text-sm">Olá! Estou pronto para diagnosticar seu
+                        <strong><?= htmlspecialchars($selectedVehicle['model'] ?? 'veículo') ?></strong>. 🚗</p>
+                    <p class="text-sm mt-1">O que está acontecendo com ele? Se puder, me envie uma foto ou descreva os
+                        sintomas/barulhos por áudio ou texto.</p>
+                </div>
             </div>
-        </div>
+        <?php endif; ?>
     </div>
 
     <!-- Loading Indicator -->

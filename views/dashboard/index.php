@@ -37,24 +37,30 @@ ob_start();
             <div class="grid grid-cols-1 gap-4">
                 <?php foreach ($history as $item): ?>
                     <?php
-                    $results = json_decode($item['result_json'], true);
-                    $firstResult = $results[0] ?? ['problem' => 'Desconhecido', 'probability' => '0%'];
+                    $resultText = $item['result_json']['text'] ?? '';
+                    // Extract first problem name from Markdown **Problem Name**
+                    preg_match('/\*\*(.*?)\*\*/', $resultText, $matches);
+                    $problemTitle = $matches[1] ?? 'Diagnóstico Geral';
+                    
+                    // Simple cleaning if it starts with numbers or common prefixes
+                    $problemTitle = preg_replace('/^\d+\.\s*/', '', $problemTitle);
                     ?>
-                    <div
-                        class="bg-white p-4 rounded-3xl shadow-sm border border-gray-50 hover:border-blue-100 transition-colors">
+                    <a href="/chat?diagnostic_id=<?= $item['id'] ?>"
+                        class="bg-white p-4 rounded-3xl shadow-sm border border-gray-50 hover:border-blue-100 transition-all active:scale-[0.98] block group">
                         <div class="flex items-center justify-between mb-3">
                             <span class="text-[10px] font-bold text-gray-400 bg-gray-50 px-2 py-1 rounded-full uppercase">
                                 <?= date('d M, Y', strtotime($item['created_at'])) ?>
                             </span>
                             <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full uppercase">
-                                Concluído
+                                Ver Chat
                             </span>
                         </div>
-                        <h4 class="font-bold text-gray-800 line-clamp-1 mb-1"><?= htmlspecialchars($firstResult['problem']) ?>
+                        <h4 class="font-bold text-gray-800 line-clamp-1 mb-1 group-hover:text-blue-600 transition-colors">
+                            <?= htmlspecialchars($problemTitle) ?>
                         </h4>
                         <p class="text-xs text-gray-500 line-clamp-2 mb-3 italic">"<?= htmlspecialchars($item['symptoms']) ?>"
                         </p>
-
+ 
                         <div class="flex items-center space-x-2 text-[10px] text-gray-400 border-t border-gray-50 pt-3">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
@@ -64,7 +70,7 @@ ob_start();
                             <span><?= htmlspecialchars($item['vehicle_info']['make'] ?? 'Veículo') ?>
                                 <?= htmlspecialchars($item['vehicle_info']['model'] ?? 'N/A') ?></span>
                         </div>
-                    </div>
+                    </a>
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
