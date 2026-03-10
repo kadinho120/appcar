@@ -150,7 +150,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (selectedImage) {
                 // Pass the File object directly in the content array (Direct Vision Support)
-                userContent.push({ type: 'image', file: selectedImage });
+                // Puter.js v2 often expects 'image' as the property name for the file object
+                userContent.push({ type: 'image', image: selectedImage });
 
                 // Clear preview and file reference
                 selectedImage = null;
@@ -159,8 +160,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             messages.push({ role: 'user', content: userContent });
 
-            // Gemini 2.0 Flash is extremely stable and supports vision multi-modal
-            const response = await puter.ai.chat(messages, { model: 'google:google/gemini-2.0-flash' });
+            // gpt-4o-mini is standard for vision in the Puter.js ecosystem
+            const response = await puter.ai.chat(messages, { model: 'gpt-4o-mini' });
             const assistantText = response.message ? response.message.content : response;
 
             messages.push({ role: 'assistant', content: assistantText });
