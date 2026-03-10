@@ -63,7 +63,23 @@ switch ($uri) {
             header('Location: /login');
             exit;
         }
+        $vehicleModel = new \App\Models\Vehicle($db->getConnection());
+        $vehicles = $vehicleModel->findByUser((int) $_SESSION['user_id']);
         require '../views/dashboard/garage.php';
+        break;
+
+    case '/add-vehicle':
+        if (!isset($_SESSION['user_id']))
+            exit;
+        $controller = new \App\Controllers\VehicleController($db);
+        $controller->add();
+        break;
+
+    case '/delete-vehicle':
+        if (!isset($_SESSION['user_id']))
+            exit;
+        $controller = new \App\Controllers\VehicleController($db);
+        $controller->delete();
         break;
 
     case '/profile':
