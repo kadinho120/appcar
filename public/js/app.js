@@ -140,6 +140,9 @@ document.addEventListener('DOMContentLoaded', () => {
         loading.classList.remove('hidden');
 
         try {
+            // Debug: List available models
+            puter.ai.listModels().then(models => console.log("Canal de modelos Puter:", models));
+
             // Ensure user is signed in to Puter for FS/AI access
             if (!puter.auth.isSignedIn()) {
                 await puter.auth.signIn();
