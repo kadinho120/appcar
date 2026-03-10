@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         addMessage('user', text);
         userInput.value = '';
-        userInput.rows = 3;
+        userInput.rows = 1;
         loading.classList.remove('hidden');
 
         try {

@@ -55,8 +55,8 @@ ob_start();
 
             <!-- Text Input -->
             <div class="flex-1 relative">
-                <textarea id="user-input" rows="3"
-                    class="w-full p-3 pr-12 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none h-24 hide-scrollbar"
+                <textarea id="user-input" rows="1"
+                    class="w-full p-3 pr-12 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none h-[46px] hide-scrollbar"
                     placeholder="Ex: Barulho na roda frontal..."></textarea>
                 <button id="send-btn"
                     class="absolute right-2 bottom-2 p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors shadow-md">
