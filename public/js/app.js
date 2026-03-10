@@ -144,6 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
         addMessage('user', text);
         userInput.value = '';
         userInput.rows = 1;
+        userInput.style.height = 'auto';
         loading.classList.remove('hidden');
 
         try {
