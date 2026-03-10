@@ -1,80 +1,159 @@
 <?php
-$title = 'Mecânico Virtual - Chat';
+$title = 'Mecânico Virtual - Diagnóstico';
 ob_start();
 ?>
 
-<div class="flex flex-col h-full bg-gray-50">
-    <!-- Chat Container -->
-    <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4">
-        <!-- Welcome Message -->
-        <div class="flex items-start">
-            <div class="bg-blue-600 text-white p-3 rounded-2xl rounded-tl-none shadow-md max-w-[85%]">
-                <p class="text-sm">Olá, <strong>
-                        <?= htmlspecialchars($_SESSION['user_name']) ?>
-                    </strong>! Eu sou seu Mecânico Virtual. 🚗</p>
-                <p class="text-sm mt-1">Como posso ajudar você hoje? Pode me descrever os sintomas do seu carro ou até
-                    enviar uma foto ou áudio.</p>
-            </div>
-        </div>
+<div class="p-6 pb-24 h-full overflow-y-auto hide-scrollbar">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">Diagnósticos</h2>
+        <button onclick="openNewDiagnosticModal()"
+            class="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-2xl shadow-lg active:scale-95 transition-all text-sm font-bold">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            <span>Novo</span>
+        </button>
     </div>
 
-    <!-- Loading Indicator -->
-    <div id="loading" class="hidden p-4 flex items-center space-x-2">
-        <div class="animate-bounce bg-blue-400 h-2 w-2 rounded-full"></div>
-        <div class="animate-bounce bg-blue-400 h-2 w-2 rounded-full delay-100"></div>
-        <div class="animate-bounce bg-blue-400 h-2 w-2 rounded-full delay-200"></div>
-        <span class="text-xs text-gray-400 font-medium">Analisando...</span>
-    </div>
+    <!-- History Section -->
+    <div class="space-y-4">
+        <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest pl-1">Histórico Recente</h3>
 
-    <!-- Input Area -->
-    <div class="p-4 bg-white border-t border-gray-100 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-        <div class="flex items-center space-x-2 mb-2" id="preview-container">
-            <!-- Image Preview will appear here -->
-        </div>
-
-        <div class="flex items-center space-x-2 bg-gray-50 p-1.5 rounded-3xl border border-gray-100">
-            <!-- Media Buttons -->
-            <div class="flex items-center space-x-1 pl-1">
-                <label for="image-input"
-                    class="p-2 text-gray-500 hover:bg-white hover:text-blue-600 rounded-full cursor-pointer transition-all hover:shadow-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+        <?php if (empty($history)): ?>
+            <div class="bg-white rounded-3xl p-8 text-center border border-gray-100 shadow-sm">
+                <div class="bg-gray-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-300" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                     </svg>
-                    <input type="file" id="image-input" accept="image/*" class="hidden">
-                </label>
-                <button id="audio-btn"
-                    class="p-2 text-gray-500 hover:bg-white hover:text-red-600 rounded-full transition-all hover:shadow-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                    </svg>
-                </button>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-700 mb-1">Nenhum diagnóstico ainda</h3>
+                <p class="text-sm text-gray-500">Inicie seu primeiro diagnóstico para resolver os problemas do seu carro.
+                </p>
             </div>
+        <?php else: ?>
+            <div class="grid grid-cols-1 gap-4">
+                <?php foreach ($history as $item): ?>
+                    <?php
+                    $results = json_decode($item['result_json'], true);
+                    $firstResult = $results[0] ?? ['problem' => 'Desconhecido', 'probability' => '0%'];
+                    ?>
+                    <div
+                        class="bg-white p-4 rounded-3xl shadow-sm border border-gray-50 hover:border-blue-100 transition-colors">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-[10px] font-bold text-gray-400 bg-gray-50 px-2 py-1 rounded-full uppercase">
+                                <?= date('d M, Y', strtotime($item['created_at'])) ?>
+                            </span>
+                            <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full uppercase">
+                                Concluído
+                            </span>
+                        </div>
+                        <h4 class="font-bold text-gray-800 line-clamp-1 mb-1"><?= htmlspecialchars($firstResult['problem']) ?>
+                        </h4>
+                        <p class="text-xs text-gray-500 line-clamp-2 mb-3 italic">"<?= htmlspecialchars($item['symptoms']) ?>"
+                        </p>
 
-            <!-- Text Input -->
-            <textarea id="user-input" rows="1"
-                class="flex-1 bg-transparent py-2 px-1 text-sm outline-none resize-none h-[40px] hide-scrollbar"
-                placeholder="Descreva o problema..."></textarea>
-
-            <!-- Send Button -->
-            <button id="send-btn"
-                class="p-2.5 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all shadow-md active:scale-95">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                </svg>
-            </button>
-        </div>
-        <p id="audio-status" class="hidden text-[10px] text-red-500 font-bold mt-1 text-center animate-pulse">Ouvindo
-            você...</p>
+                        <div class="flex items-center space-x-2 text-[10px] text-gray-400 border-t border-gray-50 pt-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+                            </svg>
+                            <span><?= htmlspecialchars($item['vehicle_info']['make'] ?? 'Veículo') ?>
+                                <?= htmlspecialchars($item['vehicle_info']['model'] ?? 'N/A') ?></span>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
     </div>
 </div>
 
-<script src="/js/app.js"></script>
+<!-- Modal Seleção de Veículo -->
+<div id="vehicleSelectionModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onclick="closeNewDiagnosticModal()">
+    </div>
+    <div
+        class="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl relative z-10 overflow-hidden animate-[scale_0.2s_ease-out]">
+        <div class="p-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Novo Diagnóstico</h3>
+            <p class="text-sm text-gray-500 mb-6">Selecione qual veículo da sua garagem você deseja analisar agora:</p>
+
+            <?php if (empty($vehicles)): ?>
+                <div class="bg-orange-50 p-4 rounded-2xl border border-orange-100 mb-4">
+                    <p class="text-sm text-orange-800 font-medium text-center">
+                        Você precisa cadastrar um veículo na Garagem antes de iniciar um diagnóstico.
+                    </p>
+                </div>
+                <a href="/garage"
+                    class="block w-full py-3 bg-blue-600 text-white font-bold rounded-2xl text-center shadow-lg shadow-blue-200">
+                    Ir para Garagem
+                </a>
+            <?php else: ?>
+                <div class="space-y-3 max-h-[300px] overflow-y-auto hide-scrollbar pr-1">
+                    <?php foreach ($vehicles as $vehicle): ?>
+                        <a href="/chat?vehicle_id=<?= $vehicle['id'] ?>"
+                            class="flex items-center p-4 bg-gray-50 rounded-2xl border border-gray-100 hover:border-blue-400 hover:bg-blue-50 transition-all group active:scale-95">
+                            <div
+                                class="bg-white p-2 rounded-xl text-blue-600 mr-4 shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 002 12v4c0 .6.4 1 1 1h2m2 0a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-gray-800">
+                                    <?= htmlspecialchars($vehicle['make'] . ' ' . $vehicle['model']) ?></h4>
+                                <p class="text-xs text-gray-500"><?= htmlspecialchars($vehicle['year']) ?> •
+                                    <?= htmlspecialchars($vehicle['license_plate'] ?? '--') ?></p>
+                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-300 group-hover:text-blue-600"
+                                viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+
+            <button onclick="closeNewDiagnosticModal()"
+                class="w-full mt-4 py-3 text-gray-500 font-bold hover:bg-gray-100 rounded-2xl transition-colors">
+                Cancelar
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openNewDiagnosticModal() {
+        document.getElementById('vehicleSelectionModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeNewDiagnosticModal() {
+        document.getElementById('vehicleSelectionModal').classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+</script>
+
+<style>
+    @keyframes scale {
+        from {
+            transform: scale(0.95);
+            opacity: 0;
+        }
+
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+</style>
 
 <?php
 $content = ob_get_clean();

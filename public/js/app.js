@@ -38,6 +38,14 @@ document.addEventListener('DOMContentLoaded', () => {
         { role: 'system', content: systemPrompt }
     ];
 
+    // If vehicle context is provided, inject it as the first context message
+    if (typeof vehicleContext !== 'undefined' && vehicleContext !== null) {
+        messages.push({
+            role: 'user',
+            content: `INFORMAÇÃO DO VEÍCULO: Estou diagnosticando um ${vehicleContext.make} ${vehicleContext.model} ano ${vehicleContext.year}. Considere estas especificações técnicas em seus diagnósticos.`
+        });
+    }
+
     // Auto-scroll to bottom
     const scrollToBottom = () => {
         chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -220,13 +228,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // If the response looks like a diagnostic, save it
             if (assistantText.includes('DIAGNÓSTICO FINAL') || assistantText.includes('Diagnóstico 1')) {
+                const saveData = {
+                    result: { text: assistantText },
+                    symptoms: messages.filter(m => m.role === 'user').map(m => Array.isArray(m.content) ? m.content.find(c => c.type === 'text')?.text || '' : m.content).join('\n')
+                };
+
+                // Add vehicle context to save data if available
+                if (typeof vehicleContext !== 'undefined' && vehicleContext !== null) {
+                    saveData.vehicle_info = vehicleContext;
+                }
+
                 fetch('/save-diagnostic', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        result: { text: assistantText },
-                        symptoms: messages.filter(m => m.role === 'user').map(m => Array.isArray(m.content) ? m.content.find(c => c.type === 'text')?.text || '' : m.content).join('\n')
-                    })
+                    body: JSON.stringify(saveData)
                 });
             }
 

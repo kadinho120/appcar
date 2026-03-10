@@ -39,13 +39,13 @@ $db = new Database();
 switch ($uri) {
     case '/':
     case '/index':
-        // If not logged in, redirect to login
-        if (!isset($_SESSION['user_id'])) {
-            header('Location: /login');
-            exit;
-        }
-        // Dashboard
-        require '../views/dashboard/index.php';
+        $controller = new \App\Controllers\DiagnosticController($db);
+        $controller->index();
+        break;
+
+    case '/chat':
+        $controller = new \App\Controllers\DiagnosticController($db);
+        $controller->chat();
         break;
 
     case '/history':

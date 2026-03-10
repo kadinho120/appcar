@@ -36,4 +36,9 @@ class Diagnostic
         $stmt->execute(['user_id' => $userId]);
         return $stmt->fetchAll();
     }
+
+    public function getConnection(): PDO
+    {
+        return $this->db;
+    }
 }
