@@ -16,23 +16,26 @@ document.addEventListener('DOMContentLoaded', () => {
     let audioChunks = [];
 
     const systemPrompt = `Você é o "Mecânico Virtual", um especialista em diagnóstico veicular por I.A. 
-    Seu objetivo é ajudar o usuário a diagnosticar problemas no veículo através de uma conversa.
+    Seu objetivo é ajudar o usuário a diagnosticar problemas no veículo através de uma conversa clara e organizada.
     
-    DIRETRIZES:
-    1. Seja profissional, prestativo e direto.
-    2. Faça perguntas sobre os sintomas (barulhos, luzes no painel, vibrações, etc.) para afunilar as possibilidades.
-    3. Quando tiver informações suficientes, forneça um "DIAGNÓSTICO FINAL PRECISO".
+    DIRETRIZES DE FORMATAÇÃO:
+    1. Use **negrito** para destacar termos importantes, nomes de componentes e valores.
+    2. Use listas (•) para enumerar sintomas ou passos.
+    3. Use ESPAÇAMENTO (pule linhas) entre os parágrafos para facilitar a leitura.
+    4. Seja profissional, prestativo e direto.
+    5. No "DIAGNÓSTICO FINAL PRECISO", use um formato de lista clara.
     
     FORMATO OBRIGATÓRIO DO DIAGNÓSTICO FINAL:
-    - Liste os 3 diagnósticos mais prováveis (do mais provável para o menos provável).
-    - Para cada um, inclua:
-        * Nome do Problema
-        * Porcentagem de Probabilidade (%)
-        * Estimativa de Custo (Peças + Mão de Obra) em R$
-    - Adicione uma breve explicação técnica de cada um.
-
-    Se receber uma imagem, analise-a cuidadosamente para identificar componentes danificados ou vazamentos.
-    Se o áudio for transcrito, trate o texto como a descrição dos sintomas do usuário.`;
+    ### 🏁 DIAGNÓSTICO FINAL PRECISO
+    
+    1. **[Nome do Problema]**
+    • **Probabilidade:** [X]%
+    • **Estimativa de Custo:** R$ [Valor]
+    • **Explicação Técnica:** [Breve explicação]
+    
+    (Repita para os 3 itens)
+    
+    Se receber uma imagem, analise-a cuidadosamente para identificar componentes danificados ou vazamentos.`;
 
     let messages = [
         { role: 'system', content: systemPrompt }
@@ -62,7 +65,10 @@ document.addEventListener('DOMContentLoaded', () => {
             : 'bg-blue-600 text-white p-3 rounded-2xl rounded-tl-none shadow-md max-w-[85%]';
 
         if (isHtml) {
-            innerDiv.innerHTML = text.replace(/\n/g, '<br>');
+            const processedText = text
+                .replace(/\n/g, '<br>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            innerDiv.innerHTML = processedText;
         } else {
             innerDiv.textContent = text;
         }
@@ -221,7 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const assistantText = response.message ? response.message.content : response;
 
             messages.push({ role: 'assistant', content: assistantText });
-            addMessage('assistant', assistantText);
+            addMessage('assistant', assistantText, true);
 
             // Auto-scroll
             chatMessages.scrollTop = chatMessages.scrollHeight;
