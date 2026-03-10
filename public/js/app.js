@@ -139,6 +139,14 @@ document.addEventListener('DOMContentLoaded', () => {
         userInput.rows = 1;
         loading.classList.remove('hidden');
 
+        // Helper to convert File to Base64 data URL
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+
         try {
             // Ensure user is signed in to Puter for FS/AI access
             if (!puter.auth.isSignedIn()) {
@@ -149,9 +157,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (text) userContent.push({ type: 'text', text: text });
 
             if (selectedImage) {
-                // Pass the File object directly in the content array (Direct Vision Support)
-                // Puter.js v2 often expects 'image' as the property name for the file object
-                userContent.push({ type: 'image', image: selectedImage });
+                const base64Data = await toBase64(selectedImage);
+                // Standard vision format (often works as a pass-through to OpenAI/Claude)
+                userContent.push({
+                    type: 'image',
+                    image: base64Data
+                });
 
                 // Clear preview and file reference
                 selectedImage = null;
@@ -160,12 +171,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             messages.push({ role: 'user', content: userContent });
 
-            // gpt-4o-mini is standard for vision in the Puter.js ecosystem
+            // gpt-4o-mini with direct data URL is generally the most compatible
             const response = await puter.ai.chat(messages, { model: 'gpt-4o-mini' });
             const assistantText = response.message ? response.message.content : response;
 
             messages.push({ role: 'assistant', content: assistantText });
-            addMessage('assistant', assistantText, true);
+            addMessage('assistant', assistantText);
+
+            // Auto-scroll
+            chatMessages.scrollTop = chatMessages.scrollHeight;
 
             // If the response looks like a diagnostic, save it
             if (assistantText.includes('DIAGNÓSTICO FINAL') || assistantText.includes('Diagnóstico 1')) {
