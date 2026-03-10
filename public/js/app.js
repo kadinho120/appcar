@@ -158,7 +158,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Documentation suggests '~/path/to/file' for Puter paths
                 const uploadedPath = `~/${tempName}`;
-                userContent.push({ type: 'file', puter_path: uploadedPath });
+                // Use type 'image' for multimodal chat with Claude/GPT vision
+                userContent.push({ type: 'image', puter_path: uploadedPath });
 
                 // Clear preview
                 selectedImage = null;
@@ -167,7 +168,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             messages.push({ role: 'user', content: userContent });
 
-            const response = await puter.ai.chat(messages, { model: 'gpt-4o' });
+            // Claude 3.5 Sonnet is highly reliable for vision on Puter
+            const response = await puter.ai.chat(messages, { model: 'claude-3-5-sonnet' });
             const assistantText = response.message ? response.message.content : response;
 
             messages.push({ role: 'assistant', content: assistantText });
