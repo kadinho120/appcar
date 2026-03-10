@@ -140,13 +140,20 @@ document.addEventListener('DOMContentLoaded', () => {
         loading.classList.remove('hidden');
 
         try {
+            // Ensure user is signed in to Puter for FS/AI access
+            if (!puter.auth.isSignedIn()) {
+                await puter.auth.signIn();
+            }
+
             let userContent = [];
             if (text) userContent.push({ type: 'text', text: text });
+
             if (selectedImage) {
                 // Upload file to Puter FS first for chat context
-                const tempPath = `temp_${Date.now()}_${selectedImage.name}`;
-                await puter.fs.write(tempPath, selectedImage);
-                userContent.push({ type: 'file', puter_path: tempPath });
+                const tempName = `temp_${Date.now()}_${selectedImage.name.replace(/\s+/g, '_')}`;
+                const puterFile = await puter.fs.write(tempName, selectedImage);
+                // Use the returned path from Puter
+                userContent.push({ type: 'file', puter_path: puterFile.path });
 
                 // Clear preview
                 selectedImage = null;
@@ -156,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
             messages.push({ role: 'user', content: userContent });
 
             const response = await puter.ai.chat(messages, { model: 'gpt-4o-mini' });
-            const assistantText = response.message.content;
+            const assistantText = response.message ? response.message.content : response;
 
             messages.push({ role: 'assistant', content: assistantText });
             addMessage('assistant', assistantText, true);
@@ -168,14 +175,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         result: { text: assistantText },
-                        symptoms: messages.filter(m => m.role === 'user').map(m => m.content[0]?.text || '').join('\n')
+                        symptoms: messages.filter(m => m.role === 'user').map(m => Array.isArray(m.content) ? m.content.find(c => c.type === 'text')?.text || '' : m.content).join('\n')
                     })
                 });
             }
 
         } catch (err) {
-            console.error("AI Error:", err);
-            addMessage('assistant', "Desculpe, ocorreu um erro ao processar sua solicitação.");
+            console.error("AI/FS Error:", err);
+            addMessage('assistant', `Erro: ${err.message || 'Ocorreu um problema ao processar sua solicitação.'}`);
         } finally {
             loading.classList.add('hidden');
         }
