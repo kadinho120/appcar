@@ -58,6 +58,22 @@ switch ($uri) {
         $controller->save();
         break;
 
+    case '/garage':
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: /login');
+            exit;
+        }
+        require '../views/dashboard/garage.php';
+        break;
+
+    case '/profile':
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: /login');
+            exit;
+        }
+        require '../views/dashboard/profile.php';
+        break;
+
     case '/login':
         $controller = new AuthController($db);
         if ($method === 'POST') {

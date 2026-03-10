@@ -41,21 +41,50 @@
 
 <body class="bg-gray-100 overflow-hidden">
     <div class="mobile-container">
-        <!-- Header -->
-        <header class="bg-blue-600 text-white p-4 flex items-center justify-between sticky top-0 z-50 shadow-md">
-            <h1 class="text-xl font-bold"><a href="/index">Mecânico Virtual</a></h1>
-            <div class="flex items-center space-x-3">
-                <?php if (isset($_SESSION['user_id'])): ?>
-                    <a href="/history" class="text-sm opacity-80 hover:opacity-100">Histórico</a>
-                    <a href="/logout" class="text-sm opacity-80 hover:opacity-100">Sair</a>
-                <?php endif; ?>
-            </div>
-        </header>
-
         <!-- Main Content -->
         <main class="flex-1 min-h-0 relative">
             <?= $content ?? '' ?>
         </main>
+
+        <!-- Bottom Navigation Bar -->
+        <nav
+            class="bg-white border-t border-gray-100 flex items-center justify-around py-2 px-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-50">
+            <?php
+            $current_uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+            ?>
+            <a href="/garage"
+                class="flex flex-col items-center space-y-1 transition-all <?= $current_uri === '/garage' ? 'text-blue-600' : 'text-gray-400' ?>">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+                <span class="text-[10px] font-medium">Garagem</span>
+            </a>
+
+            <a href="/index"
+                class="flex flex-col items-center space-y-1 transition-all <?= ($current_uri === '/index' || $current_uri === '/') ? 'text-blue-600' : 'text-gray-400' ?>">
+                <div
+                    class="p-2 -mt-6 bg-blue-600 rounded-full text-white shadow-lg shadow-blue-200 border-4 border-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                    </svg>
+                </div>
+                <span class="text-[10px] font-medium mt-0.5">Diagnosticar</span>
+            </a>
+
+            <a href="/profile"
+                class="flex flex-col items-center space-y-1 transition-all <?= $current_uri === '/profile' ? 'text-blue-600' : 'text-gray-400' ?>">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span class="text-[10px] font-medium">Perfil</span>
+            </a>
+        </nav>
     </div>
 </body>
 
