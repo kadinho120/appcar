@@ -58,8 +58,8 @@ class DiagnosticController
 
         // Decode JSON fields for the view
         $history = array_map(function ($item) {
-            $item['vehicle_info'] = json_decode($item['vehicle_info'], true);
-            $item['result_json'] = json_decode($item['result_json'], true);
+            $item['vehicle_info'] = json_decode((string) ($item['vehicle_info'] ?? ''), true) ?? [];
+            $item['result_json'] = json_decode((string) ($item['result_json'] ?? ''), true) ?? [];
             return $item;
         }, $historyRaw);
 
@@ -84,10 +84,10 @@ class DiagnosticController
         if ($diagnosticId) {
             $diagnostic = $this->diagnosticModel->findById((int) $diagnosticId);
             if ($diagnostic && $diagnostic['user_id'] == $_SESSION['user_id']) {
-                $selectedVehicle = json_decode($diagnostic['vehicle_info'], true);
+                $selectedVehicle = json_decode((string) ($diagnostic['vehicle_info'] ?? ''), true) ?? [];
                 $historicalMessages = [
-                    ['role' => 'user', 'content' => $diagnostic['symptoms']],
-                    ['role' => 'assistant', 'content' => json_decode($diagnostic['result_json'], true)['text'] ?? '']
+                    ['role' => 'user', 'content' => $diagnostic['symptoms'] ?? ''],
+                    ['role' => 'assistant', 'content' => (json_decode((string) ($diagnostic['result_json'] ?? ''), true) ?? [])['text'] ?? '']
                 ];
             }
         }
