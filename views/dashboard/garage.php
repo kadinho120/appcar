@@ -42,8 +42,7 @@ ob_start();
                         <div class="bg-gray-100 p-3 rounded-2xl text-blue-600 group-hover:bg-blue-50 transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4 11l.24-2.16A2 2 0 016.22 7h11.56a2 2 0 011.98 1.84L20 11m-16 0h16m-16 0v5a2 2 0 002 2h12a2 2 0 002-2v-5M7 18v1m10-1v1" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 002 12v4c0 .6.4 1 1 1h2m2 0a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
                             </svg>
                         </div>
                         <div>
