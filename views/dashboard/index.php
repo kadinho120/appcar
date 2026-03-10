@@ -48,7 +48,7 @@ ob_start();
                     <div class="relative">
                         <a href="/chat?diagnostic_id=<?= $item['id'] ?>"
                             class="bg-white p-4 rounded-3xl shadow-sm border border-gray-50 hover:border-blue-100 transition-all active:scale-[0.98] block">
-                            <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center justify-between mb-3 pr-9">
                                 <span class="text-[10px] font-bold text-gray-400 bg-gray-50 px-2 py-1 rounded-full uppercase">
                                     <?= date('d M, Y', strtotime($item['created_at'])) ?>
                                 </span>
@@ -75,7 +75,7 @@ ob_start();
                         </a>
                         <a href="/delete-diagnostic?id=<?= $item['id'] ?>"
                             onclick="return confirm('Tem certeza que deseja excluir este diagnóstico?')"
-                            class="absolute top-2 right-2 p-2 text-gray-300 hover:text-red-500 transition-colors z-10 bg-white/80 backdrop-blur-sm rounded-full">
+                            class="absolute top-3 right-3 p-2 text-gray-300 hover:text-red-500 transition-colors z-10 hover:bg-red-50 rounded-full">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
