@@ -132,9 +132,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // Send Message
     const sendMessage = async () => {
         const text = userInput.value.trim();
+
+        // Mandatory text with image
+        if (selectedImage && !text) {
+            alert("Por favor, descreva o problema ou o que você gostaria que eu analisasse na foto.");
+            return;
+        }
+
         if (!text && !selectedImage) return;
 
-        addMessage('user', text || "Estou enviando uma imagem para análise...");
+        addMessage('user', text);
         userInput.value = '';
         userInput.rows = 1;
         loading.classList.remove('hidden');
