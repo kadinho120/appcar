@@ -1,7 +1,5 @@
 .agents
 .dockerignore
-Dockerfile
-database/migration.sql
 node_modules
 vendor
 composer.lock
