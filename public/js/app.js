@@ -149,27 +149,18 @@ document.addEventListener('DOMContentLoaded', () => {
             if (text) userContent.push({ type: 'text', text: text });
 
             if (selectedImage) {
-                // Use a very simple, sanitized filename
-                const extension = selectedImage.name.split('.').pop() || 'jpg';
-                const tempName = `diag_img_${Date.now()}.${extension}`;
+                // Pass the File object directly in the content array (Direct Vision Support)
+                userContent.push({ type: 'image', file: selectedImage });
 
-                // Write to the app's root (home directory for this app context)
-                await puter.fs.write(tempName, selectedImage);
-
-                // Documentation suggests '~/path/to/file' for Puter paths
-                const uploadedPath = `~/${tempName}`;
-                // Use type 'image' for multimodal chat with Claude/GPT vision
-                userContent.push({ type: 'image', puter_path: uploadedPath });
-
-                // Clear preview
+                // Clear preview and file reference
                 selectedImage = null;
                 previewContainer.innerHTML = '';
             }
 
             messages.push({ role: 'user', content: userContent });
 
-            // Claude 3.5 Sonnet is highly reliable for vision on Puter
-            const response = await puter.ai.chat(messages, { model: 'claude-3-5-sonnet' });
+            // Using gpt-4o-mini with direct file pass for better stability
+            const response = await puter.ai.chat(messages, { model: 'gpt-4o-mini' });
             const assistantText = response.message ? response.message.content : response;
 
             messages.push({ role: 'assistant', content: assistantText });
