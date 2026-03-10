@@ -143,8 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         addMessage('user', text);
         userInput.value = '';
-        userInput.rows = 1;
-        userInput.style.height = 'auto';
+        userInput.rows = 3;
         loading.classList.remove('hidden');
 
         try {
@@ -214,11 +213,5 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             sendMessage();
         }
-    });
-
-    // Auto-resize textarea
-    userInput.addEventListener('input', () => {
-        userInput.style.height = 'auto';
-        userInput.style.height = userInput.scrollHeight + 'px';
     });
 });
