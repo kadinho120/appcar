@@ -140,9 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
         loading.classList.remove('hidden');
 
         try {
-            // Debug: List available models
-            puter.ai.listModels().then(models => console.log("Canal de modelos Puter:", models));
-
             // Ensure user is signed in to Puter for FS/AI access
             if (!puter.auth.isSignedIn()) {
                 await puter.auth.signIn();
@@ -162,8 +159,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             messages.push({ role: 'user', content: userContent });
 
-            // Using gpt-4o-mini with direct file pass for better stability
-            const response = await puter.ai.chat(messages, { model: 'gpt-4o-mini' });
+            // Gemini 2.0 Flash is extremely stable and supports vision multi-modal
+            const response = await puter.ai.chat(messages, { model: 'google:google/gemini-2.0-flash' });
             const assistantText = response.message ? response.message.content : response;
 
             messages.push({ role: 'assistant', content: assistantText });
