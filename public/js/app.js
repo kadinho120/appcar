@@ -139,14 +139,6 @@ document.addEventListener('DOMContentLoaded', () => {
         userInput.rows = 1;
         loading.classList.remove('hidden');
 
-        // Helper to convert File to Base64 data URL
-        const toBase64 = file => new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = error => reject(error);
-        });
-
         try {
             // Ensure user is signed in to Puter for FS/AI access
             if (!puter.auth.isSignedIn()) {
@@ -157,22 +149,31 @@ document.addEventListener('DOMContentLoaded', () => {
             if (text) userContent.push({ type: 'text', text: text });
 
             if (selectedImage) {
-                const base64Data = await toBase64(selectedImage);
-                // Standard vision format (often works as a pass-through to OpenAI/Claude)
+                // Pass the File object directly in the content array (Direct Vision Support)
                 userContent.push({
                     type: 'image',
-                    image: base64Data
+                    image: selectedImage
                 });
 
-                // Clear preview and file reference
-                selectedImage = null;
-                previewContainer.innerHTML = '';
+                // Note: File is cleared after push to avoid re-sending same file if user sends text only later
+                // but we keep a local reference if needed for other things. 
+                // We'll clear it after the API call or successful push.
             }
 
             messages.push({ role: 'user', content: userContent });
 
-            // gpt-4o-mini with direct data URL is generally the most compatible
-            const response = await puter.ai.chat(messages, { model: 'gpt-4o-mini' });
+            // Debug: See exactly what we are sending
+            console.log("Enviando mensagens para Puter AI:", JSON.parse(JSON.stringify(messages)));
+
+            // Use Gemini 2.0 Flash by its full puterId for maximum vision stability
+            const response = await puter.ai.chat(messages, { model: 'google:google/gemini-2.0-flash' });
+
+            // Clear image after successful push
+            if (selectedImage) {
+                selectedImage = null;
+                previewContainer.innerHTML = '';
+            }
+
             const assistantText = response.message ? response.message.content : response;
 
             messages.push({ role: 'assistant', content: assistantText });
@@ -194,8 +195,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
         } catch (err) {
-            console.error("AI/FS Error:", err);
-            addMessage('assistant', `Erro: ${err.message || 'Ocorreu um problema ao processar sua solicitação.'}`);
+            console.error("AI/FS Error Detailed:", err);
+            const errorStr = typeof err === 'object' ? JSON.stringify(err, null, 2) : err;
+            addMessage('assistant', `❌ Detalhes do Erro na I.A.:\n${errorStr}`);
         } finally {
             loading.classList.add('hidden');
         }
