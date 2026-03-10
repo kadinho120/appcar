@@ -11,7 +11,7 @@ ob_start();
         'model' => $selectedVehicle['model'] ?? 'N/A',
         'year' => $selectedVehicle['year'] ?? 'N/A'
     ]) ?>;
-    const historicalMessages = <?= json_encode($historicalMessages ?? []) ?>;
+    const historicalMessages = <?= json_encode($historicalMessages ?? [], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 </script>
 
 <div class="flex flex-col h-full bg-gray-50">
@@ -39,7 +39,8 @@ ob_start();
             <div class="flex items-start">
                 <div class="bg-blue-600 text-white p-3 rounded-2xl rounded-tl-none shadow-md max-w-[85%]">
                     <p class="text-sm">Olá! Estou pronto para diagnosticar seu
-                        <strong><?= htmlspecialchars($selectedVehicle['model'] ?? 'veículo') ?></strong>. 🚗</p>
+                        <strong><?= htmlspecialchars($selectedVehicle['model'] ?? 'veículo') ?></strong>. 🚗
+                    </p>
                     <p class="text-sm mt-1">O que está acontecendo com ele? Se puder, me envie uma foto ou descreva os
                         sintomas/barulhos por áudio ou texto.</p>
                 </div>

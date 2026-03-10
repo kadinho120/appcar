@@ -59,7 +59,16 @@ class DiagnosticController
         // Decode JSON fields for the view
         $history = array_map(function ($item) {
             $item['vehicle_info'] = json_decode((string) ($item['vehicle_info'] ?? ''), true) ?? [];
-            $item['result_json'] = json_decode((string) ($item['result_json'] ?? ''), true) ?? [];
+
+            $decodedResult = json_decode((string) ($item['result_json'] ?? ''), true) ?? [];
+            if (is_string($decodedResult)) {
+                $item['result_json'] = ['text' => $decodedResult];
+            } elseif (isset($decodedResult['text'])) {
+                $item['result_json'] = $decodedResult;
+            } else {
+                $item['result_json'] = ['text' => (string) ($item['result_json'] ?? '')];
+            }
+
             return $item;
         }, $historyRaw);
 
@@ -84,10 +93,24 @@ class DiagnosticController
         if ($diagnosticId) {
             $diagnostic = $this->diagnosticModel->findById((int) $diagnosticId);
             if ($diagnostic && $diagnostic['user_id'] == $_SESSION['user_id']) {
+                $decodedResult = json_decode((string) ($diagnostic['result_json'] ?? ''), true) ?? [];
+                $assistantContent = '';
+
+                if (is_string($decodedResult)) {
+                    $assistantContent = $decodedResult;
+                } elseif (isset($decodedResult['text'])) {
+                    $assistantContent = $decodedResult['text'];
+                } elseif (isset($decodedResult[0]['text'])) { // Just in case it's in an array
+                    $assistantContent = $decodedResult[0]['text'];
+                } else {
+                    // Final fallback to the raw JSON if we can't find a text property
+                    $assistantContent = (string) ($diagnostic['result_json'] ?? '');
+                }
+
                 $selectedVehicle = json_decode((string) ($diagnostic['vehicle_info'] ?? ''), true) ?? [];
                 $historicalMessages = [
                     ['role' => 'user', 'content' => $diagnostic['symptoms'] ?? ''],
-                    ['role' => 'assistant', 'content' => (json_decode((string) ($diagnostic['result_json'] ?? ''), true) ?? [])['text'] ?? '']
+                    ['role' => 'assistant', 'content' => $assistantContent]
                 ];
             }
         }
