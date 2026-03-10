@@ -145,35 +145,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 await puter.auth.signIn();
             }
 
-            let userContent = [];
-            if (text) userContent.push({ type: 'text', text: text });
+            let fullText = text;
 
             if (selectedImage) {
-                // Pass the File object directly in the content array (Direct Vision Support)
-                userContent.push({
-                    type: 'image',
-                    image: selectedImage
-                });
+                try {
+                    addMessage('assistant', "🔍 Analisando a imagem enviada...");
+                    // Use img2txt for stable image description
+                    const description = await puter.ai.img2txt(selectedImage);
+                    const descriptionText = typeof description === 'string' ? description : (description.text || JSON.stringify(description));
 
-                // Note: File is cleared after push to avoid re-sending same file if user sends text only later
-                // but we keep a local reference if needed for other things. 
-                // We'll clear it after the API call or successful push.
+                    fullText = `[O usuário enviou uma imagem. Descrição da imagem pela I.A. de visão: ${descriptionText}]\n\n${text}`;
+
+                    // Clear image after getting description
+                    selectedImage = null;
+                    previewContainer.innerHTML = '';
+                } catch (imgErr) {
+                    console.error("Img2Txt Error:", imgErr);
+                    addMessage('assistant', "⚠️ Não consegui analisar a imagem detalhadamente, mas vou tentar ajudar com base no seu texto.");
+                }
             }
 
-            messages.push({ role: 'user', content: userContent });
+            if (!fullText.trim()) return;
 
-            // Debug: See exactly what we are sending
-            console.log("Enviando mensagens para Puter AI:", JSON.parse(JSON.stringify(messages)));
+            messages.push({ role: 'user', content: fullText });
 
-            // Use Gemini 2.0 Flash by its full puterId for maximum vision stability
-            const response = await puter.ai.chat(messages, { model: 'google:google/gemini-2.0-flash' });
-
-            // Clear image after successful push
-            if (selectedImage) {
-                selectedImage = null;
-                previewContainer.innerHTML = '';
-            }
-
+            // Standard gpt-4o-mini is ultra-stable for text
+            const response = await puter.ai.chat(messages, { model: 'gpt-4o-mini' });
             const assistantText = response.message ? response.message.content : response;
 
             messages.push({ role: 'assistant', content: assistantText });
