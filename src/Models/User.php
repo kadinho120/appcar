@@ -40,4 +40,14 @@ class User
         $user = $stmt->fetch();
         return $user ?: null;
     }
+
+    public function update(int $id, string $name, string $email): bool
+    {
+        $stmt = $this->db->prepare("UPDATE users SET name = :name, email = :email WHERE id = :id");
+        return $stmt->execute([
+            'id' => $id,
+            'name' => $name,
+            'email' => $email
+        ]);
+    }
 }

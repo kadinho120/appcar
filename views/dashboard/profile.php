@@ -41,7 +41,7 @@ ob_start();
             </svg>
         </a>
 
-        <div
+        <a href="/settings"
             class="flex items-center justify-between p-4 bg-white rounded-2xl shadow-sm border border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer">
             <div class="flex items-center space-x-3">
                 <div class="p-2 bg-purple-50 text-purple-600 rounded-lg">
@@ -61,7 +61,7 @@ ob_start();
                     d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
                     clip-rule="evenodd" />
             </svg>
-        </div>
+        </a>
 
         <a href="/logout"
             class="flex items-center justify-between p-4 bg-red-50 rounded-2xl shadow-sm border border-red-100 hover:bg-red-100 transition-colors">

@@ -82,12 +82,26 @@ switch ($uri) {
         $controller->delete();
         break;
 
-    case '/profile':
-        if (!isset($_SESSION['user_id'])) {
-            header('Location: /login');
+    case '/edit-vehicle':
+        if (!isset($_SESSION['user_id']))
             exit;
-        }
-        require '../views/dashboard/profile.php';
+        $controller = new \App\Controllers\VehicleController($db);
+        $controller->edit();
+        break;
+
+    case '/profile':
+        $controller = new \App\Controllers\ProfileController($db);
+        $controller->index();
+        break;
+
+    case '/settings':
+        $controller = new \App\Controllers\ProfileController($db);
+        $controller->settings();
+        break;
+
+    case '/update-profile':
+        $controller = new \App\Controllers\ProfileController($db);
+        $controller->update();
         break;
 
     case '/login':

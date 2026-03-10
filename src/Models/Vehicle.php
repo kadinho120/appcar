@@ -47,4 +47,21 @@ class Vehicle
             'user_id' => $userId
         ]);
     }
+
+    public function update(int $id, int $userId, array $data): bool
+    {
+        $sql = "UPDATE vehicles 
+                SET make = :make, model = :model, year = :year, license_plate = :license_plate 
+                WHERE id = :id AND user_id = :user_id";
+
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute([
+            'id' => $id,
+            'user_id' => $userId,
+            'make' => $data['make'],
+            'model' => $data['model'],
+            'year' => (int) $data['year'],
+            'license_plate' => $data['license_plate'] ?? null
+        ]);
+    }
 }

@@ -47,6 +47,37 @@ class VehicleController
         echo json_encode(['success' => $success]);
     }
 
+    public function edit(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'error' => 'Method not allowed']);
+            return;
+        }
+
+        $id = $_POST['id'] ?? null;
+        $make = $_POST['make'] ?? '';
+        $model = $_POST['model'] ?? '';
+        $year = $_POST['year'] ?? '';
+        $license_plate = $_POST['license_plate'] ?? '';
+
+        if (!$id || !$make || !$model || !$year) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'error' => 'Preencha todos os campos obrigatórios.']);
+            return;
+        }
+
+        $success = $this->vehicleModel->update((int) $id, (int) $_SESSION['user_id'], [
+            'make' => $make,
+            'model' => $model,
+            'year' => $year,
+            'license_plate' => $license_plate
+        ]);
+
+        header('Content-Type: application/json');
+        echo json_encode(['success' => $success]);
+    }
+
     public function delete(): void
     {
         $id = $_GET['id'] ?? null;

@@ -42,12 +42,14 @@ ob_start();
                         <div class="bg-gray-100 p-3 rounded-2xl text-blue-600 group-hover:bg-blue-50 transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 002 12v4c0 .6.4 1 1 1h2m2 0a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 002 12v4c0 .6.4 1 1 1h2m2 0a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
                             </svg>
                         </div>
                         <div>
                             <h3 class="font-bold text-gray-800">
-                                <?= htmlspecialchars($vehicle['make'] . ' ' . $vehicle['model']) ?></h3>
+                                <?= htmlspecialchars($vehicle['make'] . ' ' . $vehicle['model']) ?>
+                            </h3>
                             <div class="flex items-center space-x-2 text-xs text-gray-500 mt-1">
                                 <span
                                     class="bg-gray-100 px-2 py-0.5 rounded-full"><?= htmlspecialchars($vehicle['year']) ?></span>
@@ -58,15 +60,25 @@ ob_start();
                             </div>
                         </div>
                     </div>
-                    <a href="/delete-vehicle?id=<?= $vehicle['id'] ?>"
-                        onclick="return confirm('Tem certeza que deseja remover este veículo?')"
-                        class="p-2 text-gray-300 hover:text-red-500 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                    </a>
+                    <div class="flex items-center space-x-1">
+                        <button onclick='openEditModal(<?= json_encode($vehicle) ?>)'
+                            class="p-2 text-gray-300 hover:text-blue-500 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                        </button>
+                        <a href="/delete-vehicle?id=<?= $vehicle['id'] ?>"
+                            onclick="return confirm('Tem certeza que deseja remover este veículo?')"
+                            class="p-2 text-gray-300 hover:text-red-500 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </a>
+                    </div>
                 </div>
             <?php endforeach; ?>
         </div>
@@ -135,6 +147,53 @@ ob_start();
     </div>
 </div>
 
+<!-- Modal Editar Veículo -->
+<div id="editVehicleModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onclick="closeEditModal()"></div>
+    <div
+        class="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl relative z-10 overflow-hidden animate-[scale_0.2s_ease-out]">
+        <div class="p-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Editar Veículo</h3>
+            <form id="editVehicleForm" class="space-y-4">
+                <input type="hidden" name="id" id="edit-id">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Marca</label>
+                    <input type="text" name="make" id="edit-make" required
+                        class="w-full p-3 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Modelo</label>
+                    <input type="text" name="model" id="edit-model" required
+                        class="w-full p-3 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Ano</label>
+                        <input type="number" name="year" id="edit-year" required
+                            class="w-full p-3 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Placa
+                            (Opcional)</label>
+                        <input type="text" name="license_plate" id="edit-license_plate"
+                            class="w-full p-3 bg-gray-50 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                    </div>
+                </div>
+                <div class="flex space-x-3 pt-4">
+                    <button type="button" onclick="closeEditModal()"
+                        class="flex-1 py-3 text-gray-600 font-bold hover:bg-gray-100 rounded-2xl transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                        class="flex-[2] py-3 px-4 bg-blue-600 text-white font-bold rounded-2xl shadow-lg shadow-blue-200 hover:bg-blue-700 active:scale-95 transition-all whitespace-nowrap">
+                        Salvar Alterações
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
     function openModal() {
         document.getElementById('addVehicleModal').classList.remove('hidden');
@@ -143,6 +202,22 @@ ob_start();
 
     function closeModal() {
         document.getElementById('addVehicleModal').classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    function openEditModal(vehicle) {
+        document.getElementById('edit-id').value = vehicle.id;
+        document.getElementById('edit-make').value = vehicle.make;
+        document.getElementById('edit-model').value = vehicle.model;
+        document.getElementById('edit-year').value = vehicle.year;
+        document.getElementById('edit-license_plate').value = vehicle.license_plate || '';
+
+        document.getElementById('editVehicleModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeEditModal() {
+        document.getElementById('editVehicleModal').classList.add('hidden');
         document.body.style.overflow = '';
     }
 
@@ -161,6 +236,28 @@ ob_start();
                 window.location.reload();
             } else {
                 alert(result.error || 'Erro ao adicionar veículo');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Erro na conexão com o servidor.');
+        }
+    });
+
+    document.getElementById('editVehicleForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+
+        try {
+            const response = await fetch('/edit-vehicle', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                window.location.reload();
+            } else {
+                alert(result.error || 'Erro ao editar veículo');
             }
         } catch (error) {
             console.error('Error:', error);
