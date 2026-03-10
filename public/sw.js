@@ -1,8 +1,8 @@
 const CACHE_NAME = 'mecanico-v1';
 const ASSETS = [
     '/js/app.js',
-    '/icons/icon-192.png',
-    '/icons/icon-512.png'
+    '/icon-192.png',
+    '/icon-512.png'
 ];
 
 self.addEventListener('install', event => {

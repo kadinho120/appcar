@@ -9,7 +9,7 @@
     </title>
     <link rel="manifest" href="/manifest.webmanifest">
     <meta name="theme-color" content="#2563eb">
-    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <link rel="apple-touch-icon" href="/icon-192.png">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://js.puter.com/v2/"></script>
