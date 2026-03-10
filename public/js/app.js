@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             messages.push({ role: 'user', content: userContent });
 
-            const response = await puter.ai.chat(messages, { model: 'gpt-4o' });
+            const response = await puter.ai.chat(messages, { model: 'gpt-4o-mini' });
             const assistantText = response.message.content;
 
             messages.push({ role: 'assistant', content: assistantText });
