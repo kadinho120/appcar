@@ -1,0 +1,22 @@
+{
+  "short_name": "Mecânico IA",
+  "name": "Mecânico Virtual - Inteligência Artificial",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#2563eb",
+  "description": "Diagnóstico veicular avançado com Inteligência Artificial."
+}
