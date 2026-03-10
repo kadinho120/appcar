@@ -20,11 +20,12 @@
         .mobile-container {
             max-width: 480px;
             margin: 0 auto;
-            min-height: 100vh;
+            height: 100dvh;
             display: flex;
             flex-direction: column;
             background-color: #ffffff;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
         }
 
         .hide-scrollbar::-webkit-scrollbar {
@@ -38,7 +39,7 @@
     </style>
 </head>
 
-<body class="bg-gray-100">
+<body class="bg-gray-100 overflow-hidden">
     <div class="mobile-container">
         <!-- Header -->
         <header class="bg-blue-600 text-white p-4 flex items-center justify-between sticky top-0 z-50 shadow-md">
@@ -52,16 +53,9 @@
         </header>
 
         <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto">
+        <main class="flex-1 min-h-0 relative">
             <?= $content ?? '' ?>
         </main>
-
-        <!-- Footer (optional for app style) -->
-        <footer class="p-4 text-center text-xs text-gray-400 border-t">
-            &copy;
-            <?= date('Y') ?> Mecânico Virtual | Powered by <a href="https://developer.puter.com" target="_blank"
-                class="underline">Puter</a>
-        </footer>
     </div>
 </body>
 
