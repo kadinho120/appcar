@@ -12,8 +12,6 @@ ob_start();
         'year' => $selectedVehicle['year'] ?? 'N/A'
     ]) ?>;
     const historicalMessages = <?= json_encode($historicalMessages ?? [], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
-    console.log('PHP INJECTED - vehicleContext:', vehicleContext);
-    console.log('PHP INJECTED - historicalMessages:', historicalMessages);
 </script>
 
 <div class="flex flex-col h-full bg-gray-50">

@@ -49,22 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Load historical messages if available
-    console.log('JS START - historicalMessages type:', typeof historicalMessages);
-    if (typeof historicalMessages !== 'undefined' && Array.isArray(historicalMessages) && historicalMessages.length > 0) {
-        console.log(`JS START - Loading ${historicalMessages.length} historical messages`);
-        historicalMessages.forEach((msg, index) => {
-            console.log(`JS - Processing msg[${index}]:`, msg);
-            const role = msg.role;
-            const content = msg.content;
-            messages.push({ role, content });
-            addMessage(role, content, role === 'assistant');
-        });
-        console.log('JS START - Current messages array:', messages);
-    } else {
-        console.log('JS START - No historical messages found or historicalMessages is undefined');
-    }
-
     // Auto-scroll to bottom
     const scrollToBottom = () => {
         chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -93,6 +77,16 @@ document.addEventListener('DOMContentLoaded', () => {
         chatMessages.appendChild(div);
         scrollToBottom();
     };
+
+    // Load historical messages if available
+    if (typeof historicalMessages !== 'undefined' && Array.isArray(historicalMessages) && historicalMessages.length > 0) {
+        historicalMessages.forEach((msg) => {
+            const role = msg.role;
+            const content = msg.content;
+            messages.push({ role, content });
+            addMessage(role, content, role === 'assistant');
+        });
+    }
 
     // Handle Image Input
     imageInput.addEventListener('change', (e) => {
