@@ -84,13 +84,49 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Handle Audio Recording
+    // Handle Audio Recording with Silence Detection
     audioBtn.addEventListener('click', async () => {
         if (!isRecording) {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 mediaRecorder = new MediaRecorder(stream);
                 audioChunks = [];
+
+                // Silence detection setup
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const source = audioContext.createMediaStreamSource(stream);
+                const analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+                source.connect(analyser);
+
+                const dataArray = new Uint8Array(analyser.frequencyBinCount);
+                let lastSoundTime = Date.now();
+                const silenceThreshold = 15; // Noise floor
+                const silenceDelay = 4000; // 4 seconds
+
+                const checkSilence = () => {
+                    if (!isRecording) {
+                        audioContext.close();
+                        return;
+                    }
+
+                    analyser.getByteFrequencyData(dataArray);
+                    const average = dataArray.reduce((p, c) => p + c) / dataArray.length;
+
+                    if (average > silenceThreshold) {
+                        lastSoundTime = Date.now();
+                    } else if (Date.now() - lastSoundTime > silenceDelay) {
+                        if (isRecording) {
+                            mediaRecorder.stop();
+                            isRecording = false;
+                            audioBtn.classList.replace('bg-red-100', 'bg-gray-100');
+                            audioBtn.querySelector('svg').classList.remove('text-red-600');
+                        }
+                        audioContext.close();
+                        return;
+                    }
+                    requestAnimationFrame(checkSilence);
+                };
 
                 mediaRecorder.ondataavailable = (event) => {
                     audioChunks.push(event.data);
@@ -103,7 +139,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     try {
                         const transcript = await puter.ai.speech2txt(audioBlob);
-                        userInput.value = transcript.text || transcript;
+                        const text = transcript.text || transcript;
+                        if (text) {
+                            userInput.value = text;
+                            // Auto-send after transcription
+                            sendMessage();
+                        }
                     } catch (err) {
                         console.error("Speech2Txt Error:", err);
                         addMessage('assistant', "Desculpe, não consegui entender o áudio. Pode tentar escrever?");
@@ -117,9 +158,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 audioStatus.classList.remove('hidden');
                 audioBtn.classList.replace('bg-gray-100', 'bg-red-100');
                 audioBtn.querySelector('svg').classList.add('text-red-600');
+
+                requestAnimationFrame(checkSilence);
+
             } catch (err) {
                 console.error("Mic Access Error:", err);
-                alert("Permissão de microfone negada.");
+                alert("Permissão de microfone negada ou erro ao iniciar áudio.");
             }
         } else {
             mediaRecorder.stop();
