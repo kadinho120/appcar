@@ -84,111 +84,80 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Handle Audio Recording with Silence Detection
-    audioBtn.addEventListener('click', async () => {
-        if (!isRecording) {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                mediaRecorder = new MediaRecorder(stream);
-                audioChunks = [];
+    // Handle Audio Recording with Web Speech API (Native)
+    let recognition = null;
+    let silenceTimer = null;
+    const silenceDelay = 3000; // 3 seconds as requested
 
-                // Silence detection setup
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const source = audioContext.createMediaStreamSource(stream);
-                const analyser = audioContext.createAnalyser();
-                analyser.fftSize = 256;
-                source.connect(analyser);
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.lang = 'pt-BR';
+        recognition.continuous = true;
+        recognition.interimResults = true;
 
-                const dataArray = new Uint8Array(analyser.frequencyBinCount);
-                let lastSoundTime = Date.now();
-                const silenceThreshold = 15; // Noise floor
-                const silenceDelay = 4000; // 4 seconds
+        recognition.onstart = () => {
+            isRecording = true;
+            audioStatus.classList.remove('hidden');
+            audioBtn.classList.replace('bg-gray-100', 'bg-red-100');
+            audioBtn.querySelector('svg').classList.add('text-red-600');
+            userInput.value = '';
+        };
 
-                const checkSilence = () => {
-                    if (!isRecording) {
-                        audioContext.close();
-                        return;
-                    }
-
-                    analyser.getByteFrequencyData(dataArray);
-                    const average = dataArray.reduce((p, c) => p + c) / dataArray.length;
-
-                    if (average > silenceThreshold) {
-                        lastSoundTime = Date.now();
-                    } else if (Date.now() - lastSoundTime > silenceDelay) {
-                        if (isRecording) {
-                            mediaRecorder.stop();
-                            isRecording = false;
-                            audioBtn.classList.replace('bg-red-100', 'bg-gray-100');
-                            audioBtn.querySelector('svg').classList.remove('text-red-600');
-                        }
-                        audioContext.close();
-                        return;
-                    }
-                    requestAnimationFrame(checkSilence);
-                };
-
-                mediaRecorder.ondataavailable = (event) => {
-                    audioChunks.push(event.data);
-                };
-
-                mediaRecorder.onstop = async () => {
-                    const audioBlob = new Blob(audioChunks);
-                    console.log(`Gravação finalizada. Tamanho: ${audioBlob.size} bytes, Chunks: ${audioChunks.length}`);
-
-                    if (audioBlob.size < 1000) {
-                        console.warn("Áudio muito curto ou vazio.");
-                        audioStatus.classList.add('hidden');
-                        return;
-                    }
-
-                    loading.classList.remove('hidden');
-                    audioStatus.classList.add('hidden');
-
-                    try {
-                        // Ensure user is signed in to Puter for AI access
-                        if (!puter.auth.isSignedIn()) {
-                            await puter.auth.signIn();
-                        }
-
-                        console.log("Iniciando transcrição...");
-                        const transcript = await puter.ai.speech2txt(audioBlob);
-                        console.log("Transcrição recebida:", transcript);
-
-                        const text = transcript.text || transcript;
-                        if (text && typeof text === 'string' && text.trim().length > 0) {
-                            userInput.value = text;
-                            // Auto-send after transcription
-                            sendMessage();
-                        } else {
-                            console.warn("Transcrição vazia ou inválida.");
-                        }
-                    } catch (err) {
-                        console.error("Speech2Txt Error Detailed:", err);
-                        const errorStr = typeof err === 'object' ? JSON.stringify(err, null, 2) : err;
-                        addMessage('assistant', `❌ Erro na Transcrição:\n${errorStr}`);
-                    } finally {
-                        loading.classList.add('hidden');
-                    }
-                };
-
-                mediaRecorder.start();
-                isRecording = true;
-                audioStatus.classList.remove('hidden');
-                audioBtn.classList.replace('bg-gray-100', 'bg-red-100');
-                audioBtn.querySelector('svg').classList.add('text-red-600');
-
-                requestAnimationFrame(checkSilence);
-
-            } catch (err) {
-                console.error("Mic Access Error:", err);
-                alert("Permissão de microfone negada ou erro ao iniciar áudio.");
+        recognition.onresult = (event) => {
+            let finalTranscript = '';
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    finalTranscript += event.results[i][0].transcript;
+                }
             }
+
+            if (finalTranscript) {
+                userInput.value = finalTranscript;
+            }
+
+            // Reset silence timer on every result (speech detected)
+            clearTimeout(silenceTimer);
+            silenceTimer = setTimeout(() => {
+                recognition.stop();
+            }, silenceDelay);
+        };
+
+        recognition.onerror = (event) => {
+            console.error("Speech Recognition Error:", event.error);
+            if (event.error === 'not-allowed') {
+                alert("Permissão de microfone negada.");
+            }
+            stopRecognition();
+        };
+
+        recognition.onend = () => {
+            stopRecognition();
+            // Auto-send if there is text
+            if (userInput.value.trim().length > 0) {
+                sendMessage();
+            }
+        };
+    }
+
+    const stopRecognition = () => {
+        isRecording = false;
+        audioStatus.classList.add('hidden');
+        audioBtn.classList.replace('bg-red-100', 'bg-gray-100');
+        audioBtn.querySelector('svg').classList.remove('text-red-600');
+        clearTimeout(silenceTimer);
+    };
+
+    audioBtn.addEventListener('click', () => {
+        if (!recognition) {
+            alert("Seu navegador não suporta reconhecimento de voz.");
+            return;
+        }
+
+        if (!isRecording) {
+            recognition.start();
         } else {
-            mediaRecorder.stop();
-            isRecording = false;
-            audioBtn.classList.replace('bg-red-100', 'bg-gray-100');
-            audioBtn.querySelector('svg').classList.remove('text-red-600');
+            recognition.stop();
         }
     });
 
