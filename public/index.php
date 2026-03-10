@@ -32,6 +32,9 @@ $method = $_SERVER['REQUEST_METHOD'];
 // Database instance
 $db = new Database();
 
+// Run migrations automatically if needed
+\App\Utils\Migrator::run($db->getConnection());
+
 // Basic Router
 switch ($uri) {
     case '/':
