@@ -99,8 +99,8 @@ document.addEventListener('DOMContentLoaded', () => {
         recognition.onstart = () => {
             isRecording = true;
             audioStatus.classList.remove('hidden');
-            audioBtn.classList.replace('bg-gray-100', 'bg-red-100');
-            audioBtn.querySelector('svg').classList.add('text-red-600');
+            audioBtn.classList.add('bg-red-50', 'text-red-600', 'shadow-inner');
+            audioBtn.classList.remove('text-gray-500');
             userInput.value = '';
         };
 
@@ -143,8 +143,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const stopRecognition = () => {
         isRecording = false;
         audioStatus.classList.add('hidden');
-        audioBtn.classList.replace('bg-red-100', 'bg-gray-100');
-        audioBtn.querySelector('svg').classList.remove('text-red-600');
+        audioBtn.classList.remove('bg-red-50', 'text-red-600', 'shadow-inner');
+        audioBtn.classList.add('text-gray-500');
         clearTimeout(silenceTimer);
     };
 
